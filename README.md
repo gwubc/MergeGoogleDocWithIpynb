@@ -1,1 +1,1 @@
-read me [Here](https://github.com/gwubc/MergeGoogleDocWithIpynb/blob/master/code_for_readme.ipynb)
+read me [Here](https://github.com/gwubc/MergeGoogleDocWithIpynb/blob/master/README.ipynb)
