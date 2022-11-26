@@ -1,27 +1,14 @@
 import os.path
 import re
-from enum import Enum
 
 from markdownify import markdownify as md
 
 import requests
 
-
-class ResourceUnableCollectException(Exception):
-    pass
-
-
-class ResourceExportException(Exception):
-    pass
-
-
-class ResourceType(Enum):
-    MARKDOWN = 1
-    HTML = 2
-    IPYNB = 3
-    GOOGLEDOC = 4
-
-    UNKNOWN = 10
+from MergeGoogleDocWithIpynb.Exception import ResourceUnableCollectException, ResourceExportException
+from MergeGoogleDocWithIpynb.CodeResourceAnalyzer import CodeResourceAnalyzer
+from MergeGoogleDocWithIpynb.MarkdownResourceAnalyzer import MarkdownResourceAnalyzer
+from MergeGoogleDocWithIpynb.Types import ResourceType, CodeResource, MarkdownResource
 
 
 class ResourceCollector:
@@ -75,6 +62,9 @@ class ResourceCollector:
         self._used = True
         return self.__str__()
 
+    def collectFromRawString(self, data: str):
+        self._data = data
+
     def _htmlToMd(self, htmlTxt) -> str:
         return md(htmlTxt)
 
@@ -90,23 +80,30 @@ class ResourceCollector:
                 return components[i + 1]
         raise ResourceUnableCollectException(f"Cannot find doc id: {url}")
 
-    def exportToMd(self) -> str:
+    def exportToMarkdownResource(self, removeLeadingTrailingBlankLine: bool = True) -> MarkdownResource:
+        mdResource = ""
         match self.resourceType:
             case ResourceType.GOOGLEDOC | ResourceType.HTML:
-                return self._htmlToMd(self._data)
+                mdResource = self._htmlToMd(self._data)
             case ResourceType.MARKDOWN:
-                return self._data
+                mdResource = self._data
             case _:
                 raise ResourceExportException(
                     "Unable export as markdown. Only google doc, html and markdown can be export as markdown")
 
-    def exportToIpynb(self) -> str:
+        resourceAnalyzer = MarkdownResourceAnalyzer(ResourceType.MARKDOWN, mdResource)
+        resourceAnalyzer.removeLeadingTrailingBlankLine = removeLeadingTrailingBlankLine
+        return resourceAnalyzer.analysis()
+
+    def exportToCodeResource(self, removeCellId: bool = False) -> CodeResource:
         match self.resourceType:
             case ResourceType.IPYNB:
-                return self._data
+                resourceAnalyzer = CodeResourceAnalyzer(ResourceType.IPYNB, self._data)
+                resourceAnalyzer.codeBlockRemoveCellId = removeCellId
+                return resourceAnalyzer.analysis()
 
             case _:
-                raise ResourceExportException("Unable export as markdown. Only ipynb can be export as ipynb")
+                raise ResourceExportException("Unable export as CodeResource. Only ipynb can be export as CodeResource")
 
     def __str__(self):
         return self._data

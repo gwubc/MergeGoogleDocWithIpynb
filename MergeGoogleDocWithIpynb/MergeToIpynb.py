@@ -1,30 +1,32 @@
 import nbformat
 
-from MergeGoogleDocWithIpynb.CodeResourceContainer import CodeResourceContainer
-from MergeGoogleDocWithIpynb.MdResourceContainer import MdResourceContainer, BlockType
+from MergeGoogleDocWithIpynb.Types import BlockType, MarkdownResource, CodeResource
 
 
 class MergeToIpynb:
-    mdResource: MdResourceContainer = None
-    codeResource: CodeResourceContainer = None
 
-    def __init__(self, mdResource: MdResourceContainer, codeResource: CodeResourceContainer):
-        self.mdResource = mdResource
-        self.codeResource = codeResource
+    markdownResource: MarkdownResource = None
+    codeResource: CodeResource = None
+    def __init__(self):
+        self.markdownResource = []
+        self.codeResource = {}
+
+    def addMarkdownResource(self, markdownResource: MarkdownResource):
+        self.markdownResource += markdownResource
+
+    def addCodeResource(self, codeResource: CodeResource):
+        self.codeResource.update(codeResource)
 
     def generate(self, outPath):
-        codeData = self.codeResource.getAnalyseCodeCells()
-        parts = self.mdResource.getAnalysedTextBlock()
-
         nb = nbformat.v4.new_notebook()
         nb['cells'] = []
 
-        for t, p in parts:
+        for t, p in self.markdownResource:
             if t == BlockType.MD:
                 nb['cells'].append(nbformat.v4.new_markdown_cell(p))
 
             elif t == BlockType.CODE:
-                codeTxt = codeData.get(p)
+                codeTxt = self.codeResource.get(p)
                 if not codeTxt:
                     codeTxt = "# Code Not Found"
                 codeCell = nbformat.v4.new_code_cell(codeTxt)
