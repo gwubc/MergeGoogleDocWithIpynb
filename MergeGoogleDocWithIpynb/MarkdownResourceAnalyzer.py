@@ -1,3 +1,5 @@
+import nbformat
+
 from MergeGoogleDocWithIpynb.Exception import ResourceAnalysisException
 from MergeGoogleDocWithIpynb.ResourceAnalyzer import ResourceAnalyzer
 from MergeGoogleDocWithIpynb.Types import ResourceType, MarkdownResource, BlockType
@@ -68,9 +70,21 @@ class MarkdownResourceAnalyzer(ResourceAnalyzer):
                 parts[i] = (BlockType.MD, l.strip())
         return parts
 
+    def _getMarkdownCellFromIpynb(self):
+        markdownRaw = []
+        nbSource = nbformat.reads(self.rawResource, as_version=4)
+        for e, c in enumerate(nbSource.cells):
+            if c['cell_type'] != "markdown":
+                continue
+            markdownRaw.append(c["source"])
+        return "\n{%%}\n".join(markdownRaw)
+
+
     def analysis(self) -> MarkdownResource:
-        if self.resourceType != ResourceType.MARKDOWN:
+        if self.resourceType != ResourceType.MARKDOWN and self.resourceType != ResourceType.IPYNB:
             raise ResourceAnalysisException(f"resourceType: {self.resourceType}, currently not supported")
+
+        self.rawResource = self._getMarkdownCellFromIpynb()
 
         s = self._mergeTextBlock(self._analyseRawTxt())
         if self.removeLeadingTrailingBlankLine:

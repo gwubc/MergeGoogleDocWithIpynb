@@ -17,6 +17,8 @@ class CodeResourceAnalyzer(ResourceAnalyzer):
         if resourceType == ResourceType.IPYNB:
             nbSource = nbformat.reads(rawResource, as_version=4)
             for e, c in enumerate(nbSource.cells):
+                if c['cell_type'] != "code":
+                    continue
                 self._codeCells.append(c)
         else:
             raise ResourceAnalysisException(f"resourceType: {resourceType}, currently not supported")
@@ -32,8 +34,6 @@ class CodeResourceAnalyzer(ResourceAnalyzer):
         codeData: CodeResource = {}
 
         for c in self._codeCells:
-            if c['cell_type'] != "code":
-                continue
 
             codeId = self._getCodeIdForCell(c)
 

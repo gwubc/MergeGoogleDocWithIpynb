@@ -81,17 +81,18 @@ class ResourceCollector:
         raise ResourceUnableCollectException(f"Cannot find doc id: {url}")
 
     def exportToMarkdownResource(self, removeLeadingTrailingBlankLine: bool = True) -> MarkdownResource:
-        mdResource = ""
+        resourceAnalyzer = None
         match self.resourceType:
             case ResourceType.GOOGLEDOC | ResourceType.HTML:
-                mdResource = self._htmlToMd(self._data)
+                resourceAnalyzer = MarkdownResourceAnalyzer(ResourceType.MARKDOWN, self._htmlToMd(self._data))
             case ResourceType.MARKDOWN:
-                mdResource = self._data
+                resourceAnalyzer = MarkdownResourceAnalyzer(ResourceType.MARKDOWN, self._data)
+            case ResourceType.IPYNB:
+                resourceAnalyzer = MarkdownResourceAnalyzer(ResourceType.IPYNB, self._data)
             case _:
                 raise ResourceExportException(
                     "Unable export as markdown. Only google doc, html and markdown can be export as markdown")
 
-        resourceAnalyzer = MarkdownResourceAnalyzer(ResourceType.MARKDOWN, mdResource)
         resourceAnalyzer.removeLeadingTrailingBlankLine = removeLeadingTrailingBlankLine
         return resourceAnalyzer.analysis()
 
