@@ -4,7 +4,7 @@ from pathlib import Path
 long_description = (Path(__file__).parent / "README.md").read_text()
 
 setup(name='mergegoogledocwithipynb',
-      version='0.2.1',
+      version='0.2.2',
       description='merge google doc with ipynb',
       long_description=long_description,
       long_description_content_type='text/markdown',
@@ -18,5 +18,6 @@ setup(name='mergegoogledocwithipynb',
           'nbformat',
           'requests',
           'markdownify',
+          'Jinja2',
       ],
       zip_safe=False)

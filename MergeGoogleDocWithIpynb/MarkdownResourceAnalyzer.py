@@ -14,19 +14,19 @@ class MarkdownResourceAnalyzer(ResourceAnalyzer):
 
     def _isComment(self, s) -> bool:
         s = Utility.standardizeStr(s)
-        if len(s) > 4 and s[:2] == "{#" and s[-2:] == "#}":
+        if len(s) > 4 and s[:2] == "[#" and s[-2:] == "#]":
             return True
         return False
 
     def _isNewTextBlock(self, s) -> bool:
         s = Utility.standardizeStr(s)
-        if s == "{%newtextblock%}" or s == "{%%}":
+        if s == "[%newtextblock%]" or s == "[%%]":
             return True
         return False
 
     def _isCodePlaceholder(self, s) -> bool:
         s = s.replace(" ", '').lower()
-        if len(s) > 4 and "{{" == s[:2] and "}}" == s[-2:]:
+        if len(s) > 4 and "[[" == s[:2] and "]]" == s[-2:]:
             return True
         return False
 
@@ -77,14 +77,15 @@ class MarkdownResourceAnalyzer(ResourceAnalyzer):
             if c['cell_type'] != "markdown":
                 continue
             markdownRaw.append(c["source"])
-        return "\n{%%}\n".join(markdownRaw)
+        return "\n[%%]\n".join(markdownRaw)
 
 
     def analysis(self) -> MarkdownResource:
         if self.resourceType != ResourceType.MARKDOWN and self.resourceType != ResourceType.IPYNB:
             raise ResourceAnalysisException(f"resourceType: {self.resourceType}, currently not supported")
 
-        self.rawResource = self._getMarkdownCellFromIpynb()
+        if self.resourceType == ResourceType.IPYNB:
+            self.rawResource = self._getMarkdownCellFromIpynb()
 
         s = self._mergeTextBlock(self._analyseRawTxt())
         if self.removeLeadingTrailingBlankLine:

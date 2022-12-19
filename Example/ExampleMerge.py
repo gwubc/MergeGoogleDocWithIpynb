@@ -1,8 +1,8 @@
 from MergeGoogleDocWithIpynb.MergeToIpynb import MergeToIpynb
 from MergeGoogleDocWithIpynb.CodeResourceContainer import CodeResourceContainer
 from MergeGoogleDocWithIpynb.MdResourceContainer import MdResourceContainer
-from MergeGoogleDocWithIpynb.ResourceCollector import ResourceCollector, ResourceType
-
+from MergeGoogleDocWithIpynb.ResourceCollector import ResourceCollector
+from MergeGoogleDocWithIpynb.Types import ResourceType
 
 code1 = 'https://raw.githubusercontent.com/gwubc/MergeGoogleDocWithIpynb/master/Example/ResourceForExample/codePart1.ipynb'
 code2 = 'https://raw.githubusercontent.com/gwubc/MergeGoogleDocWithIpynb/master/Example/ResourceForExample/codePart2.ipynb'
@@ -17,8 +17,8 @@ mdResourceCollector2 = ResourceCollector(ResourceType.MARKDOWN)
 mdResourceCollector2.collectFromRemoteFile(markdown2)
 
 mdResourceContainer = MdResourceContainer()
-mdResourceContainer.add(mdResourceCollector1.exportToMd())
-mdResourceContainer.add(mdResourceCollector2.exportToMd())
+mdResourceContainer.add(mdResourceCollector1.exportToMarkdownResource())
+mdResourceContainer.add(mdResourceCollector2.exportToMarkdownResource())
 
 
 codeResourceCollector1 = ResourceCollector(ResourceType.IPYNB)

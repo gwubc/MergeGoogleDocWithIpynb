@@ -49,3 +49,9 @@ class CodeResourceAnalyzer(ResourceAnalyzer):
 
     def analysis(self) -> CodeResource:
         return self._analyseCodeCells()
+
+    def findJsonData(self) -> str:
+        for c in self._codeCells[::-1]:
+            firstLine = Utility.standardizeStr(c['source'].split('\n')[0])
+            if firstLine == "#data":
+                return c["outputs"][0]['text']

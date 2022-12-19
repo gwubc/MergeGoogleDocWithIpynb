@@ -1,3 +1,4 @@
+import json
 import os.path
 import re
 
@@ -105,6 +106,14 @@ class ResourceCollector:
 
             case _:
                 raise ResourceExportException("Unable export as CodeResource. Only ipynb can be export as CodeResource")
+
+    def exportJsonData(self) -> dict:
+        match self.resourceType:
+            case ResourceType.IPYNB:
+                resourceAnalyzer = CodeResourceAnalyzer(ResourceType.IPYNB, self._data)
+                return json.loads(resourceAnalyzer.findJsonData())
+            case _:
+                raise ResourceExportException("Unable export Json data. Only ipynb can be export Json data")
 
     def __str__(self):
         return self._data
